@@ -85,42 +85,58 @@ interface CreateModalProps {
   setOpenCreateModal: (value: boolean) => void;
 }
 
-const CreateModal = ({ setOpenCreateModal }: CreateModalProps) => {
+const CreateModal = ({ setOpenCreateModal, fetchPosts }: CreateModalProps) => {
   const inputRef = useRef(null);
   const [userName, setUserName] = useState("");
   const [postContent, setPostContent] = useState("");
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const handleImageClick = () => {
     //@ts-ignore
     inputRef.current.click();
   };
 
-  const handleImageUpload = async (e: any) => {
-    const file = e.target.files[0];
-    const formData = new FormData();
+  const handleImageSave = (e: any) => {
+    const file = e.target.files?.[0];
 
-    formData.append("image", file);
+    if(file) {
+      setImage(file);
 
-    try {
-      const res = await axios.post("http://localhost:4000/upload", formData);
-      console.log("response", res);
-      setImage(res?.data.url);
-    } catch (error) {
-      console.log("error", error);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  }
+
+  const handleImageUpload = async () => {
+    if (image){
+      const formData = new FormData();
+  
+      formData.append("image", image);
+  
+      try {
+        const res = await axios.post("http://localhost:4000/upload", formData);
+        const imagePath = res?.data.url.path
+        return imagePath
+      } catch (error) {
+        console.log("handleImageUpload::error", error);
+      }
     }
   };
 
   const handleCreatePost = async () => {
     try {
-      const res = await axios.post("http://localhost:4000/create-post", {
+      const imageURL = await handleImageUpload()
+      await axios.post("http://localhost:4000/create-post", {
         username: userName,
         postDescription: postContent,
-        postImage: image,
+        postImage: imageURL,
       });
-      console.log("response", res);
+
+      fetchPosts();
+      setOpenCreateModal(false);
     } catch (error) {
-      console.log("error", error);
+      console.log("handleCreatePost::error", error);
     }
   };
 
@@ -135,9 +151,9 @@ const CreateModal = ({ setOpenCreateModal }: CreateModalProps) => {
         <div className="content">
           <div>
             <div className="profilePicture" onClick={handleImageClick}>
-              {image ? (
-                <img className="userImage" src={image} alt="" />
-              ) : (
+              {previewUrl ? (
+                <img className="userImage" src={previewUrl} alt="" />
+              ) :  (
                 <IoPerson className="userImage" />
               )}
             </div>
@@ -145,7 +161,7 @@ const CreateModal = ({ setOpenCreateModal }: CreateModalProps) => {
               type="file"
               style={{ display: "none" }}
               ref={inputRef}
-              onChange={(e) => handleImageUpload(e)}
+              onChange={(e) => handleImageSave(e)}
               accept=".jpeg, .jpg, .png, .gif"
             />
           </div>
@@ -163,7 +179,7 @@ const CreateModal = ({ setOpenCreateModal }: CreateModalProps) => {
             <Button
               text="Create post"
               height="50px"
-              disabled={!postContent || !image}
+              disabled={!postContent && !image}
               onClick={handleCreatePost}
             />
           </div>

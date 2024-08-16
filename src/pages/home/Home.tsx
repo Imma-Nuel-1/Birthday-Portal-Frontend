@@ -3,7 +3,8 @@ import AppHeader from "./AppHeader";
 import ActionCenter from "./ActionCenter";
 import Content from "./Content";
 import CreateModal from "./CreateModal";
-import { useState } from "react";
+import { useEffect, useState } from 'react';
+import axios from "axios";
 
 const Wrapper = styled.div`
   background: #fff;
@@ -26,6 +27,21 @@ const Wrapper = styled.div`
 
 const Home = () => {
   const [openCreateModal, setOpenCreateModal] = useState<boolean>(false);
+  const [posts, setPosts] = useState([]);
+
+  const fetchPosts = async () => {
+    try {
+      const response = await axios.get('http://localhost:4000/posts');
+
+      setPosts(response.data.data);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
   return (
     <Wrapper>
@@ -34,10 +50,13 @@ const Home = () => {
         <ActionCenter setOpenCreateModal={setOpenCreateModal} />
       </div>
 
-      <Content />
+      <Content posts={posts} />
 
       {openCreateModal && (
-        <CreateModal setOpenCreateModal={setOpenCreateModal} />
+        <CreateModal
+        setOpenCreateModal={setOpenCreateModal} 
+        fetchPosts={fetchPosts} 
+        />
       )}
     </Wrapper>
   );
