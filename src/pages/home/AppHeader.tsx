@@ -17,7 +17,7 @@ const bounceAnimation = keyframes`
 
 // Styled Wrapper with enhanced styles
 const Wrapper = styled.div`
-  height: 70px;
+  height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -35,16 +35,10 @@ const Wrapper = styled.div`
   }
 `;
 
-// Icon for added visual interest
-const Emoji = styled.span`
-  margin-right: 10px; // Space between the emoji and the text
-`;
-
 const AppHeader = () => {
   return (
     <Wrapper>
-      <Emoji>🎉</Emoji>
-      Happy Birthday, Imma~Nuel! Here’s to a year full of joy and success! 🎉
+      🎉Happy Birthday, Imma~Nuel! Here’s to a year full of joy and success!🎉
     </Wrapper>
   );
 };
