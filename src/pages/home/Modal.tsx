@@ -41,11 +41,15 @@ const ModalContent = styled.div`
   button {
     padding: 10px 20px;
     font-size: 16px;
-    background-color: #ff6f61;
+    background-color: #6a5acd; /* Updated to a purple shade */
     color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
+
+    &:hover {
+      background-color: #5a4cb1; /* Darker shade on hover */
+    }
   }
 `;
 
@@ -64,7 +68,7 @@ const Modal: React.FC<ModalProps> = ({ message, isOpen, onClose }) => {
   return (
     <Backdrop>
       <ModalContent>
-        <h2>Happy Birthday, Ardaiy! 🎉</h2>
+        <h2>Happy Birthday, Imma~mnuel! 🎉</h2>
         <p>{message}</p>
         <button onClick={onClose}>Close</button>
       </ModalContent>

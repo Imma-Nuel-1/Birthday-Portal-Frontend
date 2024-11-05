@@ -1,5 +1,12 @@
 import styled from "styled-components";
 
+// Define the prop types
+interface UserCardProps {
+  username: string;
+  postDescription: string;
+  postImage: string;
+}
+
 const Wrapper = styled.div`
   border: 1px solid #e1e1e1;
   border-radius: 8px;
@@ -48,10 +55,13 @@ const Wrapper = styled.div`
         height: 100%;
       }
     }
-  }
 `;
 
-const UserCard = ({ username, postDescription, postImage }) => {
+const UserCard: React.FC<UserCardProps> = ({
+  username,
+  postDescription,
+  postImage,
+}) => {
   return (
     <Wrapper>
       <div className="profilePicture">

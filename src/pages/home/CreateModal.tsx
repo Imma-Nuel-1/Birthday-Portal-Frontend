@@ -18,7 +18,7 @@ const Backdrop = styled.div`
   align-items: center;
 `;
 
-const Wrapper = styled(Backdrop)`
+const Wrapper = styled(Backdrop)<{ previewUrl: string | null }>`
   .container {
     background: #fff;
     border-radius: 8px;
@@ -35,6 +35,7 @@ const Wrapper = styled(Backdrop)`
       p {
         font-size: 24px;
         font-weight: 600;
+        color: #800080; /* Purple color */
       }
     }
 
@@ -65,17 +66,37 @@ const Wrapper = styled(Backdrop)`
       }
 
       .profilePicture {
+        position: relative;
         height: 100px;
         width: 100px;
         border-radius: 50%;
-        border: 3px solid #ff6f61;
+        border: 3px solid #800080; /* Purple color */
         cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
 
         .userImage {
           height: 100%;
           width: 100%;
           border-radius: 50%;
           object-fit: cover;
+        }
+
+        &::before {
+          content: "+";
+          color: white;
+          font-size: 36px;
+          position: absolute;
+          text-align: center;
+          line-height: 100px;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          border-radius: 50%;
+          opacity: ${({ previewUrl }) => (previewUrl ? 0 : 1)};
+        }
       }
     }
   }
@@ -83,50 +104,47 @@ const Wrapper = styled(Backdrop)`
 
 interface CreateModalProps {
   setOpenCreateModal: (value: boolean) => void;
+  fetchPosts: () => Promise<void>;
 }
 
 const CreateModal = ({ setOpenCreateModal, fetchPosts }: CreateModalProps) => {
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const [userName, setUserName] = useState("");
   const [postContent, setPostContent] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const handleImageClick = () => {
-    //@ts-ignore
-    inputRef.current.click();
+    inputRef.current?.click();
   };
 
-  const handleImageSave = (e: any) => {
+  const handleImageSave = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
-    if(file) {
+    if (file) {
       setImage(file);
-
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
     }
-  }
+  };
 
   const handleImageUpload = async () => {
-    if (image){
+    if (image) {
       const formData = new FormData();
-  
       formData.append("image", image);
-  
+
       try {
         const res = await axios.post("http://localhost:4000/upload", formData);
-        const imagePath = res?.data.url.path
-        return imagePath
+        return res?.data.url.path;
       } catch (error) {
-        console.log("handleImageUpload::error", error);
+        console.error("Error uploading image:", error);
       }
     }
   };
 
   const handleCreatePost = async () => {
     try {
-      const imageURL = await handleImageUpload()
+      const imageURL = await handleImageUpload();
       await axios.post("http://localhost:4000/create-post", {
         username: userName,
         postDescription: postContent,
@@ -136,24 +154,24 @@ const CreateModal = ({ setOpenCreateModal, fetchPosts }: CreateModalProps) => {
       fetchPosts();
       setOpenCreateModal(false);
     } catch (error) {
-      console.log("handleCreatePost::error", error);
+      console.error("Error creating post:", error);
     }
   };
 
   return (
-    <Wrapper>
+    <Wrapper previewUrl={previewUrl}>
       <div className="container">
         <div className="header">
           <p>Create post</p>
-          <MdCancel color="#ff6f61" onClick={() => setOpenCreateModal(false)} />
+          <MdCancel color="#800080" onClick={() => setOpenCreateModal(false)} />
         </div>
 
         <div className="content">
           <div>
             <div className="profilePicture" onClick={handleImageClick}>
               {previewUrl ? (
-                <img className="userImage" src={previewUrl} alt="" />
-              ) :  (
+                <img className="userImage" src={previewUrl} alt="Profile" />
+              ) : (
                 <IoPerson className="userImage" />
               )}
             </div>
@@ -161,21 +179,21 @@ const CreateModal = ({ setOpenCreateModal, fetchPosts }: CreateModalProps) => {
               type="file"
               style={{ display: "none" }}
               ref={inputRef}
-              onChange={(e) => handleImageSave(e)}
-              accept=".jpeg, .jpg, .png, .gif"
+              onChange={handleImageSave}
+              accept="image/*, video/*" // Allowing image and video uploads
+              capture="environment" // Prompt to use camera
             />
           </div>
           <div className="formArea">
             <textarea
               onChange={(e) => setPostContent(e.target.value)}
-              placeholder="Whats on your mind?"
+              placeholder="What do you want to say?"
             />
             <input
               onChange={(e) => setUserName(e.target.value)}
               type="text"
-              placeholder="Whats your name"
+              placeholder="What's your name?"
             />
-
             <Button
               text="Create post"
               height="50px"
