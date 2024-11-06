@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import styled from "styled-components";
 import { MdCancel } from "react-icons/md";
 import { useRef, useState } from "react";
@@ -113,6 +112,7 @@ const CreateModal = ({ setOpenCreateModal, fetchPosts }: CreateModalProps) => {
   const [postContent, setPostContent] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false); // Track button state
 
   const handleImageClick = () => {
     inputRef.current?.click();
@@ -143,6 +143,7 @@ const CreateModal = ({ setOpenCreateModal, fetchPosts }: CreateModalProps) => {
   };
 
   const handleCreatePost = async () => {
+    setIsButtonDisabled(true); // Disable the button on click
     try {
       const imageURL = await handleImageUpload();
       await axios.post("http://localhost:4000/create-post", {
@@ -155,6 +156,8 @@ const CreateModal = ({ setOpenCreateModal, fetchPosts }: CreateModalProps) => {
       setOpenCreateModal(false);
     } catch (error) {
       console.error("Error creating post:", error);
+    } finally {
+      setIsButtonDisabled(false); // Re-enable the button after the action is complete
     }
   };
 
@@ -195,9 +198,9 @@ const CreateModal = ({ setOpenCreateModal, fetchPosts }: CreateModalProps) => {
               placeholder="What's your name?"
             />
             <Button
-              text="Create post"
+              text={isButtonDisabled ? "Creating..." : "Create post"}
               height="50px"
-              disabled={!postContent && !image}
+              disabled={isButtonDisabled || (!postContent && !image)} // Disable if button is disabled or content is empty
               onClick={handleCreatePost}
             />
           </div>
