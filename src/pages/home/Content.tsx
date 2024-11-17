@@ -38,3 +38,4 @@ const Content: React.FC<ContentProps> = ({ posts }) => {
 };
 
 export default Content;
+
