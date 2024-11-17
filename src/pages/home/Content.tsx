@@ -29,7 +29,6 @@ const Content: React.FC<ContentProps> = ({ posts }) => {
             username={post.username}
             postDescription={post.postDescription}
             postImage={post.postImage}
-            email={post.email}
           />
         ))
       ) : (

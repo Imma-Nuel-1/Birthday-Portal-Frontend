@@ -5,7 +5,6 @@ interface UserCardProps {
   username: string;
   postDescription: string;
   postImage: string;
-  email: string;
 }
 
 const Wrapper = styled.div`
@@ -62,7 +61,6 @@ const UserCard: React.FC<UserCardProps> = ({
   username,
   postDescription,
   postImage,
-  email,
 }) => {
   return (
     <Wrapper>
@@ -75,9 +73,6 @@ const UserCard: React.FC<UserCardProps> = ({
           <p className="username">{username}</p>
         </div>
 
-        <div className="contentItem">
-          <p className="email">{email}</p>
-        </div>
 
         <div className="contentItem">
           <p className="description">{postDescription}</p>
