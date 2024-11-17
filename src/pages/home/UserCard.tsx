@@ -1,5 +1,12 @@
 import styled from "styled-components";
 
+// Define the prop types
+interface UserCardProps {
+  username: string;
+  postDescription: string;
+  postImage: string;
+}
+
 const Wrapper = styled.div`
   border: 1px solid #e1e1e1;
   border-radius: 8px;
@@ -48,34 +55,31 @@ const Wrapper = styled.div`
         height: 100%;
       }
     }
-  }
 `;
 
-const Usercard = () => {
+const UserCard: React.FC<UserCardProps> = ({
+  username,
+  postDescription,
+  postImage,
+}) => {
   return (
     <Wrapper>
       <div className="profilePicture">
-        <img
-          src="https://images.unsplash.com/photo-1681053203240-c36aee74cc03?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxMHx8fGVufDB8fHx8fA%3D%3D"
-          alt=""
-        />
+        <img src={postImage} alt={username} />
       </div>
 
       <div className="content">
         <div className="contentItem">
-          <p className="username">Anonymous</p>
+          <p className="username">{username}</p>
         </div>
 
+
         <div className="contentItem">
-          <p className="">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.
-            Necessitatibus in quam sed laudantium fuga. Blanditiis, ipsum
-            reiciendis! Totam, natus accusantium.
-          </p>
+          <p className="description">{postDescription}</p>
         </div>
       </div>
     </Wrapper>
   );
 };
 
-export default Usercard;
+export default UserCard;

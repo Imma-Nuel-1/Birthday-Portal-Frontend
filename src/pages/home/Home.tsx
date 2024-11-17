@@ -3,29 +3,45 @@ import AppHeader from "./AppHeader";
 import ActionCenter from "./ActionCenter";
 import Content from "./Content";
 import CreateModal from "./CreateModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
+// Wrapper styled component with a purple-inspired theme
 const Wrapper = styled.div`
-  background: #fff;
-  width: 50%;
-  height: 100vh;
-  margin: 0 auto;
-  position: relative;
-  overflow-y: scroll;
-
-  .header {
-    position: sticky;
-    top: 0;
-    background: #fff;
-  }
+  background: #f5f3ff;
+  min-height: 100vh;
+  padding: 15px;
+  box-sizing: border-box;
 
   @media screen and (max-width: 768px) {
-    width: 80vw;
+    margin: 0 auto;
+  }
+
+  .header {
+    margin-bottom: 20px;
   }
 `;
 
 const Home = () => {
   const [openCreateModal, setOpenCreateModal] = useState<boolean>(false);
+  const [posts, setPosts] = useState([]);
+
+  const fetchPosts = async () => {
+    try {
+      const response = await axios.get("http://localhost:4000/posts", {
+        headers: {
+          "user-email": sessionStorage.getItem("userEmail")
+        }
+      });
+      setPosts(response.data.data);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
   return (
     <Wrapper>
@@ -33,11 +49,12 @@ const Home = () => {
         <AppHeader />
         <ActionCenter setOpenCreateModal={setOpenCreateModal} />
       </div>
-
-      <Content />
-
+      <Content posts={posts} />
       {openCreateModal && (
-        <CreateModal setOpenCreateModal={setOpenCreateModal} />
+        <CreateModal
+          setOpenCreateModal={setOpenCreateModal}
+          fetchPosts={fetchPosts}
+        />
       )}
     </Wrapper>
   );

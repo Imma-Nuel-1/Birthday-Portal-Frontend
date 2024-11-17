@@ -15,11 +15,15 @@ interface ActionCenterProps {
   setOpenCreateModal: (value: boolean) => void;
 }
 
+// Updated ActionCenter component
 const ActionCenter = ({ setOpenCreateModal }: ActionCenterProps) => {
   return (
     <Wrapper>
-      <Button text="Create" onClick={() => setOpenCreateModal(true)} />
-      <Button text="Refresh" />
+      <Button
+        text="🎉 Create a Special Post to Celebrate Imma~Nuel!"
+        onClick={() => setOpenCreateModal(true)}
+      />
+      {/* <Button text="Refresh" /> */}
     </Wrapper>
   );
 };

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import styled from "styled-components";
 import { MdCancel } from "react-icons/md";
 import { useRef, useState } from "react";
@@ -18,12 +17,12 @@ const Backdrop = styled.div`
   align-items: center;
 `;
 
-const Wrapper = styled(Backdrop)`
+const Wrapper = styled(Backdrop)<{ previewUrl: string | null }>`
   .container {
     background: #fff;
     border-radius: 8px;
     width: 500px;
-    height: 500px;
+    height: auto;
 
     .header {
       display: flex;
@@ -35,6 +34,7 @@ const Wrapper = styled(Backdrop)`
       p {
         font-size: 24px;
         font-weight: 600;
+        color: #800080; /* Purple color */
       }
     }
 
@@ -65,17 +65,37 @@ const Wrapper = styled(Backdrop)`
       }
 
       .profilePicture {
+        position: relative;
         height: 100px;
         width: 100px;
         border-radius: 50%;
-        border: 3px solid #ff6f61;
+        border: 3px solid #800080; /* Purple color */
         cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
 
         .userImage {
           height: 100%;
           width: 100%;
           border-radius: 50%;
           object-fit: cover;
+        }
+
+        &::before {
+          content: "+";
+          color: white;
+          font-size: 36px;
+          position: absolute;
+          text-align: center;
+          line-height: 100px;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          border-radius: 50%;
+          opacity: ${({ previewUrl }) => (previewUrl ? 0 : 1)};
+        }
       }
     }
   }
@@ -83,60 +103,80 @@ const Wrapper = styled(Backdrop)`
 
 interface CreateModalProps {
   setOpenCreateModal: (value: boolean) => void;
+  fetchPosts: () => Promise<void>;
 }
 
-const CreateModal = ({ setOpenCreateModal }: CreateModalProps) => {
-  const inputRef = useRef(null);
+const CreateModal = ({ setOpenCreateModal, fetchPosts }: CreateModalProps) => {
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
   const [postContent, setPostContent] = useState("");
-  const [image, setImage] = useState("");
-
+  const [image, setImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false); // Track button state
+  
   const handleImageClick = () => {
-    //@ts-ignore
-    inputRef.current.click();
+    inputRef.current?.click();
   };
 
-  const handleImageUpload = async (e: any) => {
-    const file = e.target.files[0];
-    const formData = new FormData();
+  const handleImageSave = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
 
-    formData.append("image", file);
+    if (file) {
+      setImage(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
 
-    try {
-      const res = await axios.post("http://localhost:4000/upload", formData);
-      console.log("response", res);
-      setImage(res?.data.url);
-    } catch (error) {
-      console.log("error", error);
+  const handleImageUpload = async () => {
+    if (image) {
+      const formData = new FormData();
+      formData.append("image", image);
+
+      try {
+        const res = await axios.post("http://localhost:4000/upload", formData);
+        return res?.data.url.path;
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      }
     }
   };
 
   const handleCreatePost = async () => {
+    setIsButtonDisabled(true); // Disable the button on click
     try {
-      const res = await axios.post("http://localhost:4000/create-post", {
+      const imageURL = await handleImageUpload();
+      await axios.post("http://localhost:4000/create-post", {
         username: userName,
         postDescription: postContent,
-        postImage: image,
+        postImage: imageURL,
+        email: email,
       });
-      console.log("response", res);
+
+      sessionStorage.setItem('userEmail', email);
+      fetchPosts();
+      setOpenCreateModal(false);
     } catch (error) {
-      console.log("error", error);
+      console.error("Error creating post:", error);
+    } finally {
+      setIsButtonDisabled(false); // Re-enable the button after the action is complete
     }
   };
 
   return (
-    <Wrapper>
+    <Wrapper previewUrl={previewUrl}>
       <div className="container">
         <div className="header">
           <p>Create post</p>
-          <MdCancel color="#ff6f61" onClick={() => setOpenCreateModal(false)} />
+          <MdCancel color="#800080" onClick={() => setOpenCreateModal(false)} />
         </div>
 
         <div className="content">
           <div>
             <div className="profilePicture" onClick={handleImageClick}>
-              {image ? (
-                <img className="userImage" src={image} alt="" />
+              {previewUrl ? (
+                <img className="userImage" src={previewUrl} alt="Profile" />
               ) : (
                 <IoPerson className="userImage" />
               )}
@@ -145,25 +185,30 @@ const CreateModal = ({ setOpenCreateModal }: CreateModalProps) => {
               type="file"
               style={{ display: "none" }}
               ref={inputRef}
-              onChange={(e) => handleImageUpload(e)}
-              accept=".jpeg, .jpg, .png, .gif"
+              onChange={handleImageSave}
+              accept="image/*, video/*" // Allowing image and video uploads
+              capture="environment" // Prompt to use camera
             />
           </div>
           <div className="formArea">
             <textarea
               onChange={(e) => setPostContent(e.target.value)}
-              placeholder="Whats on your mind?"
+              placeholder="What do you want to say?"
             />
             <input
               onChange={(e) => setUserName(e.target.value)}
               type="text"
-              placeholder="Whats your name"
+              placeholder="What's your name?"
             />
-
+            <input
+              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              placeholder="What's your email?"
+            />
             <Button
-              text="Create post"
+              text={isButtonDisabled ? "Creating..." : "Create post"}
               height="50px"
-              disabled={!postContent || !image}
+              disabled={isButtonDisabled || (!postContent && !image)} // Disable if button is disabled or content is empty
               onClick={handleCreatePost}
             />
           </div>

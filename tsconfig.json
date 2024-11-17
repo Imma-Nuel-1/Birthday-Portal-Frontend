@@ -5,3 +5,20 @@
     { "path": "./tsconfig.node.json" }
   ]
 }
+
+// {
+//   "files": [],
+//   "references": [
+//     { "path": "./tsconfig.app.json" },
+//     { "path": "./tsconfig.node.json" }
+//   ],
+//   "compilerOptions": {
+//     "target": "es6", // or "esnext"
+//     "module": "commonjs", // or "esnext" depending on your setup
+//     "strict": true,
+//     "esModuleInterop": true,
+//     "allowSyntheticDefaultImports": true,
+//     "skipLibCheck": true, // Optional, can help with type checking issues
+//     "forceConsistentCasingInFileNames": true
+//   }
+// }
