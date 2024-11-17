@@ -22,7 +22,7 @@ const Wrapper = styled(Backdrop)<{ previewUrl: string | null }>`
     background: #fff;
     border-radius: 8px;
     width: 500px;
-    height: 500px;
+    height: auto;
 
     .header {
       display: flex;
@@ -109,11 +109,12 @@ interface CreateModalProps {
 const CreateModal = ({ setOpenCreateModal, fetchPosts }: CreateModalProps) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
   const [postContent, setPostContent] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false); // Track button state
-
+  
   const handleImageClick = () => {
     inputRef.current?.click();
   };
@@ -150,8 +151,10 @@ const CreateModal = ({ setOpenCreateModal, fetchPosts }: CreateModalProps) => {
         username: userName,
         postDescription: postContent,
         postImage: imageURL,
+        email: email,
       });
 
+      sessionStorage.setItem('userEmail', email);
       fetchPosts();
       setOpenCreateModal(false);
     } catch (error) {
@@ -196,6 +199,11 @@ const CreateModal = ({ setOpenCreateModal, fetchPosts }: CreateModalProps) => {
               onChange={(e) => setUserName(e.target.value)}
               type="text"
               placeholder="What's your name?"
+            />
+            <input
+              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              placeholder="What's your email?"
             />
             <Button
               text={isButtonDisabled ? "Creating..." : "Create post"}

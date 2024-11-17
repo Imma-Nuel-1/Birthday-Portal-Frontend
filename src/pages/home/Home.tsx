@@ -28,7 +28,11 @@ const Home = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await axios.get("http://localhost:4000/posts");
+      const response = await axios.get("http://localhost:4000/posts", {
+        headers: {
+          "user-email": sessionStorage.getItem("userEmail")
+        }
+      });
       setPosts(response.data.data);
     } catch (error) {
       console.error("Error fetching posts:", error);

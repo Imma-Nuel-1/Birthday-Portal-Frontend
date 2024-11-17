@@ -11,6 +11,7 @@ interface Post {
   username: string;
   postDescription: string;
   postImage: string;
+  email: string;
 }
 
 // Define the props type for Content component
@@ -28,6 +29,7 @@ const Content: React.FC<ContentProps> = ({ posts }) => {
             username={post.username}
             postDescription={post.postDescription}
             postImage={post.postImage}
+            email={post.email}
           />
         ))
       ) : (
