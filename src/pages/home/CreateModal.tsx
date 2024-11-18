@@ -114,7 +114,7 @@ const CreateModal = ({ setOpenCreateModal, fetchPosts }: CreateModalProps) => {
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false); // Track button state
-  
+
   const handleImageClick = () => {
     inputRef.current?.click();
   };
@@ -135,7 +135,10 @@ const CreateModal = ({ setOpenCreateModal, fetchPosts }: CreateModalProps) => {
       formData.append("image", image);
 
       try {
-        const res = await axios.post("https://birthday-backend-afcf1895c6ac.herokuapp.com/upload", formData);
+        const res = await axios.post(
+          "https://birthday-backend-afcf1895c6ac.herokuapp.com/upload",
+          formData
+        );
         return res?.data.url.path;
       } catch (error) {
         console.error("Error uploading image:", error);
@@ -144,17 +147,33 @@ const CreateModal = ({ setOpenCreateModal, fetchPosts }: CreateModalProps) => {
   };
 
   const handleCreatePost = async () => {
+    // Check if any of the fields are empty
+    if (!userName || !postContent || !image || !email) {
+      alert("Please fill in all fields before posting.");
+      return; // Prevent further execution if any field is missing
+    }
+
+    // Email validation (basic format check)
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      alert("Please enter a valid email address.");
+      return; // Prevent further execution if email is invalid
+    }
+
     setIsButtonDisabled(true); // Disable the button on click
     try {
       const imageURL = await handleImageUpload();
-      await axios.post("https://birthday-backend-afcf1895c6ac.herokuapp.com/create-post", {
-        username: userName,
-        postDescription: postContent,
-        postImage: imageURL,
-        email: email,
-      });
+      await axios.post(
+        "https://birthday-backend-afcf1895c6ac.herokuapp.com/create-post",
+        {
+          username: userName,
+          postDescription: postContent,
+          postImage: imageURL,
+          email: email,
+        }
+      );
 
-      sessionStorage.setItem('userEmail', email);
+      sessionStorage.setItem("userEmail", email);
       fetchPosts();
       setOpenCreateModal(false);
     } catch (error) {
