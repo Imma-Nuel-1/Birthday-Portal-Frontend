@@ -135,10 +135,7 @@ const CreateModal = ({ setOpenCreateModal, fetchPosts }: CreateModalProps) => {
       formData.append("image", image);
 
       try {
-        const res = await axios.post(
-          "https://birthday-backend-afcf1895c6ac.herokuapp.com",
-          formData
-        );
+        const res = await axios.post("https://birthday-backend-afcf1895c6ac.herokuapp.com/upload", formData);
         return res?.data.url.path;
       } catch (error) {
         console.error("Error uploading image:", error);
@@ -150,7 +147,7 @@ const CreateModal = ({ setOpenCreateModal, fetchPosts }: CreateModalProps) => {
     setIsButtonDisabled(true); // Disable the button on click
     try {
       const imageURL = await handleImageUpload();
-      await axios.post("https://birthday-backend-afcf1895c6ac.herokuapp.com", {
+      await axios.post("https://birthday-backend-afcf1895c6ac.herokuapp.com/create-post", {
         username: userName,
         postDescription: postContent,
         postImage: imageURL,
