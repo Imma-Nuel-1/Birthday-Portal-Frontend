@@ -32,7 +32,7 @@ const Home = () => {
         headers: {
           "user-email": sessionStorage.getItem("userEmail")
         }
-      );
+      });
       setPosts(response.data.data);
     } catch (error) {
       console.error("Error fetching posts:", error);
