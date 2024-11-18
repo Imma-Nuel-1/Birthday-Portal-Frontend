@@ -187,7 +187,6 @@ const CreateModal = ({ setOpenCreateModal, fetchPosts }: CreateModalProps) => {
               ref={inputRef}
               onChange={handleImageSave}
               accept="image/*, video/*" // Allowing image and video uploads
-              capture="environment" // Prompt to use camera
             />
           </div>
           <div className="formArea">
